@@ -9,6 +9,7 @@ ENTITY trafficLightController IS
 	i_Greset:IN STD_LOGIC;
 	o_carSwitch:OUT STD_LOGIC;
 	o_MSTL, o_SSTL: OUT STD_LOGIC_VECTOR(2 downto 0);
+	o_clockOut:OUT STD_LOGIC;
 	o_BCD1,o_BCD2: OUT STD_LOGIC_VECTOR(6 downto 0)
 	);
 	
@@ -62,21 +63,21 @@ BEGIN
 aclock: clk_div
 	PORT MAP(
 		clock_25Mhz => i_Gclock,
-		clock_1MHz => int_Gclock
+		clock_1Hz => int_Gclock
 		);
 
 adebouncer: debouncer_2
 	PORT MAP(
-		i_resetBar => i_Greset,
-		i_clock => i_Gclock,
+		i_resetBar => not i_Greset,
+		i_clock => int_Gclock, --int_Gclock
 		i_raw => i_SSCS,
 		o_clean => int_SSCS
 		);
 
 TLC: lightControl
 	PORT MAP(
-		i_Gclock => i_Gclock,
-		i_carSensor => i_SSCS,
+		i_Gclock => int_Gclock, --int_Gclock
+		i_carSensor => int_SSCS,
 		i_SSCmax => i_SSC,
 		i_MSCmax => i_MSC,
 		i_Greset => i_Greset,
@@ -110,7 +111,7 @@ myBCD: DECBCD
 				o_seg_g2 => o_BCD2(6)
 				);
 	
-		
+	o_clockOut <= int_Gclock;	
 	o_MSTL(0) <= int_MG;
 	o_MSTL(1) <= int_MY;
 	o_MSTL(2) <= int_MR;
